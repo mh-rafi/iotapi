@@ -1,0 +1,19 @@
+{
+  "name": "pi_node_server_2",
+  "version": "1.0.0",
+  "description": "Test description",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "better-sqlite3": "^2.3.2",
+    "body-parser": "~1.15.1",
+    "cookie-parser": "~1.4.3",
+    "express": "~4.13.4",
+    "serve-favicon": "~2.3.0"
+  },
+  "author": "",
+  "license": "ISC"
+}
