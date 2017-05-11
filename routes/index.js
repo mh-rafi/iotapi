@@ -3,10 +3,19 @@ var router = express.Router();
 
 var Database = require('better-sqlite3');
 
+var path = require('path');
+var appDir = path.dirname(require.main.filename);
+
 router.route('/get/:table')
   .get(function(req, res, next) {
-    var db = new Database('data/SeradexTracker.sqlite', {});
-    var rows = db.prepare('SELECT * FROM '+req.params.table).all();
+    // console.log(appDir);
+    try {
+      var db = new Database(appDir + '/data/SeradexTracker.sqlite', {});
+      var rows = db.prepare('SELECT * FROM '+req.params.table).all();
+    } catch(e) {
+      console.log(e);
+    }
+    
     res.send(rows);
   });
 
@@ -17,7 +26,7 @@ router.route('/confirm/:table')
     var table = req.params.table;
     var backupTable = table + '_backup_'+ date.toJSON().replace(/-|:|\./g, '_');
     
-    var db = new Database('data/SeradexTracker.sqlite', {});
+    var db = new Database(appDir + 'data/SeradexTracker.sqlite', {});
     var stmt = db.prepare('CREATE TABLE '+  backupTable +' AS SELECT * FROM '+ table);
     var result = stmt.run();
     
