@@ -18,7 +18,7 @@ app.use('/api', routes);
 // Hndle Error
 app.use(function(err, req, res, next) {
   res.status(500).send({error: err});
-})
+});
 
 var port = process.env.PORT || 3000;
 app.set('port', port);
