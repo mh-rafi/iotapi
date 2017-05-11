@@ -26,7 +26,7 @@ router.route('/confirm/:table')
     var table = req.params.table;
     var backupTable = table + '_backup_'+ date.toJSON().replace(/-|:|\./g, '_');
     
-    var db = new Database(appDir + 'data/SeradexTracker.sqlite', {});
+    var db = new Database(appDir + '/data/SeradexTracker.sqlite', {});
     var stmt = db.prepare('CREATE TABLE '+  backupTable +' AS SELECT * FROM '+ table);
     var result = stmt.run();
     
