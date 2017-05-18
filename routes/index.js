@@ -1,67 +1,133 @@
 var express = require('express');
-var router = express.Router();
-
 var Database = require('better-sqlite3');
-
 var path = require('path');
+var fs = require('fs');
+
+
+var router = express.Router();
 var appDir = path.dirname(require.main.filename);
 
-router.route('/get/:table')
+function tableExists(arr, tblName) {
+ for(var i = 0; i < arr.length; i++) {
+    var item = arr[i];
+    
+    if (item.tbl_name === tblName)
+      return true;
+ }
+ return false;
+}
+  
+
+router.route('/data/:table')
   .get(function(req, res, next) {
-    // console.log(appDir);
+    
+    var path = req.query.path || appDir + '/data/SeradexTracker.sqlite';
+    if(!fs.existsSync(path)) {
+      return res.status(404).send('Invalid DB path!');
+    }
+    
+    // console.log(path);
     try {
-      var db = new Database(appDir + '/data/SeradexTracker.sqlite', {});
-      var rows = db.prepare('SELECT * FROM '+req.params.table).all();
+      var db = new Database(path, {});
+      var rows = db.prepare('SELECT * FROM ' + req.params.table).all();
     } catch(e) {
       console.log(e);
+      res.status(400).send(e.toString());
     }
     
     res.send(rows);
+  })
+  .post(function(req, res, next) {
+    
+    var path = req.query.path || appDir + '/data/SeradexTracker.sqlite';
+    if(!fs.existsSync(path)) {
+      return res.status(404).send('Invalid DB path!');
+    }
+    
+    var table = req.params.table;
+    var rowToAdd = req.body;
+    
+    if(!rowToAdd)
+      return res.status(400).send('row field is empty!');
+    
+    var columns = '';
+    for(var item in rowToAdd) {
+      columns += '$'+ item + ',';
+    }
+    columns = columns.substr(0, columns.length - 1);
+    // console.log(columns);
+    
+    try {
+      var db = new Database(path, {});
+      var insertSTMT = db.prepare('INSERT INTO '+ table +' VALUES ('+ columns +')');
+      var insertResult = insertSTMT.run(rowToAdd);
+    } catch(e) {
+      console.log(e);
+      res.status(400).send(e.toString());
+    }
+    
+    res.send(insertResult);
   });
+
 
 router.route('/confirm/:table')
   .get(function(req, res, next) {
-    var date = new Date();
+    
+    var path = req.query.path || appDir + '/data/SeradexTracker.sqlite';
+    if(!fs.existsSync(path)) {
+      return res.status(404).send('Invalid DB path!');
+    }
     
     var table = req.params.table;
-    var backupTable = table + '_backup_'+ date.toJSON().replace(/-|:|\./g, '_');
+    var backupTable = table + '_backup';
     
-    var db = new Database(appDir + '/data/SeradexTracker.sqlite', {});
-    var stmt = db.prepare('CREATE TABLE '+  backupTable +' AS SELECT * FROM '+ table);
-    var result = stmt.run();
+    var db = new Database(path, {});
+    var deleteSTMT = db.prepare('DELETE FROM '+ table);
     
-    // try {
-    //   var stmt = db.prepare('CREATE TABLE '+  backupTable +' AS SELECT * FROM '+ table);
-    // } catch(e) {
-    //   console.log(e);
-    // }
+    try {
+      // GET ALL TABLES
+      var allTablesSTMT = db.prepare('SELECT * FROM sqlite_master WHERE type="table"');
+      var allTables = allTablesSTMT.all();
+      
+      // CHECK BACKUP TABLE EXISTS 
+      if (tableExists(allTables, backupTable)) {
+        
+        var appendSTMT = db.prepare('INSERT INTO '+ backupTable +' SELECT * FROM '+ table);
+        appendSTMT.run();
+        deleteSTMT.run();
+        // console.log('table exists.')
+      } else {
+        
+        var creatCopySTMT = db.prepare('CREATE TABLE '+ backupTable +' AS SELECT * FROM '+ table);
+        var creatCopyResult = creatCopySTMT.run();
+        deleteSTMT.run();
+        // console.log('table is not exists.')
+      }
+    } catch (e) {
+      console.log('Error!');
+      console.log(e);
+      res.status(400).send(e.toString());
+    }
     
-    // console.log(stmt);
-    var stmtDel = db.prepare('DELETE FROM '+ table);
-    stmtDel.run();
-    
-    console.log('-----');
     res.send({
-      message: 'new backup table created',
-      backupTable: backupTable
+      message: 'Data is saved to table: '+ backupTable
     });
   });
 
-router.route('/tr')
-  .post(function(req, res, next) {
-    var dbPath = req.body.path;
-    var table = req.body.table;
-    
+router.route('/test')
+  .get(function(req, res) {
     try {
-      var db = new Database(dbPath, {});
-      var rows = db.prepare('SELECT * FROM ' + table).all();
-    } catch(error) {
-      console.log('error');
-      return next(error);
+      var db = new Database(appDir + '/data/SeradexTracker.sqlite', {});
+      var stmt = db.prepare('SELECT * FROM sqlite_master WHERE type="table"');
+      var result = stmt.all();
+    } catch(e) {
+      console.log('Error!');
+      console.log(e);
     }
     
-    console.log('passed');
-    res.send(rows);
-  });
+    console.log(result);
+    res.json(result);
     
+  });
+  
 module.exports = router;

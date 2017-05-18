@@ -11,6 +11,10 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(bodyParser.json());
 
+app.get('/', function(req, res, next) {
+    res.send('Server is running!');
+});
+
 
 app.use('/api', routes);
 
