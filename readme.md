@@ -1,8 +1,8 @@
-### GET api/data/table_name/?path=/home/pi/path/to/sqlitefile.sqlite
-Returns all rows from table_name.
+### Returns all rows from "table_name".
+GET api/data/table_name/?path=/home/pi/path/to/sqlitefile.sqlite
 
-### POST api/data/table_name/?path=/home/pi/path/to/sqlitefile.sqlite
-Insert row in table_name
+### Insert row in "table_name"
+POST api/data/table_name/?path=/home/pi/path/to/sqlitefile.sqlite
 
     Sample requet body
     {
@@ -12,7 +12,7 @@ Insert row in table_name
         "Distance": 20
     }
 
-### GET api/confirm/table_name/?path=/home/pi/path/to/sqlitefile.sqlite
-Delete all values from table and create new table "table_name_backup".
+### Delete all values from "table_name" and create new table "table_name_backup".
+GET api/confirm/table_name/?path=/home/pi/path/to/sqlitefile.sqlite
 
-NB: if path is not provide server will use /data/SeradexTracker.sqlite in project folder.
+### NB: if path is not provide server will use /data/SeradexTracker.sqlite in project folder.
