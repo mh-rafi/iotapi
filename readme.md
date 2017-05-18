@@ -15,4 +15,4 @@ POST api/data/table_name/?path=/home/pi/path/to/sqlitefile.sqlite
 ### Delete all values from "table_name" and create new table "table_name_backup".
 GET api/confirm/table_name/?path=/home/pi/path/to/sqlitefile.sqlite
 
-### NB: if path is not provide server will use /data/SeradexTracker.sqlite in project folder.
+#### NB: Query parameter "path" is optional, default path is /data/SeradexTracker.sqlite in project folder.
