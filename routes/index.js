@@ -50,6 +50,7 @@ router.route('/data/:table')
     if(!rowToAdd)
       return res.status(400).send('row field is empty!');
     
+    // CONSTRUCT COMMA SEPARATED COLUMN NAMES FOR SQL
     var columns = '';
     for(var item in rowToAdd) {
       columns += '$'+ item + ',';
@@ -67,6 +68,28 @@ router.route('/data/:table')
     }
     
     res.send(insertResult);
+  })
+  .delete(function(req, res, next) {
+    
+    var path = req.query.path || appDir + '/data/SeradexTracker.sqlite';
+    if(!fs.existsSync(path)) {
+      return res.status(404).send('Invalid DB path!');
+    }
+    
+    var table = req.params.table;
+    var conditionKey = req.body.key;
+    var conditionValue = req.body.value;
+    
+    try {
+      var db = new Database(path, {});
+      var deleteSTMT = db.prepare('DELETE FROM '+ table +' WHERE '+ conditionKey + '="'+ conditionValue +'"');
+      deleteSTMT.run();
+    } catch (e) {
+      console.log(e);
+      res.status(400).send(e.toString());
+    }
+    
+    res.send('Row has been deleted.');
   });
 
 
@@ -81,10 +104,12 @@ router.route('/confirm/:table')
     var table = req.params.table;
     var backupTable = table + '_backup';
     
-    var db = new Database(path, {});
-    var deleteSTMT = db.prepare('DELETE FROM '+ table);
     
     try {
+      
+      var db = new Database(path, {});
+      var deleteSTMT = db.prepare('DELETE FROM '+ table);
+      
       // GET ALL TABLES
       var allTablesSTMT = db.prepare('SELECT * FROM sqlite_master WHERE type="table"');
       var allTables = allTablesSTMT.all();
