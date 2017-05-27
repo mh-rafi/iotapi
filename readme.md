@@ -1,8 +1,12 @@
+#### Set path to IoTConfig in /data/SeradexTracker.sqlite filename
+GET /api/setpath/?path=/home/pi/Desktop/SeradexTracker.sqlite
+
+
 ### Returns all rows from "table_name".
-GET api/data/table_name/?path=/home/pi/path/to/sqlitefile.sqlite
+GET api/data/table_name
 
 ### Insert a new row into "table_name"
-POST api/data/table_name/?path=/home/pi/path/to/sqlitefile.sqlite
+POST api/data/table_name
 
     Sample requet body
     {
@@ -13,7 +17,7 @@ POST api/data/table_name/?path=/home/pi/path/to/sqlitefile.sqlite
     }
 
 ### Delete a row from "table_name"
-DELETE api/data/table_name/?path=/home/pi/path/to/sqlitefile.sqlite
+DELETE api/data/table_name
     
     Sample requet body
     {
@@ -24,6 +28,4 @@ DELETE api/data/table_name/?path=/home/pi/path/to/sqlitefile.sqlite
 
 
 ### Copy all values from "table_name" to "table_name_backup" and empty "table_name".
-GET api/confirm/table_name/?path=/home/pi/path/to/sqlitefile.sqlite
-
-#### NB: Query parameter "path" is optional, default path is /data/SeradexTracker.sqlite in project folder.
+GET api/confirm/table_name/
